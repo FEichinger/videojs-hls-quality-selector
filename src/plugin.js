@@ -23,9 +23,9 @@ class HlsQualitySelectorPlugin {
    */
   constructor(player, options) {
     this.player = player;
-    this._options = options
-    this._options.parent = player.controlBar
-    this._options.positionIndex = -2
+    this._options = options;
+    this._options.parent = player.controlBar;
+    this._options.positionIndex = -2;
 
     // If there is quality levels plugin and the HLS tech exists
     // then continue.
@@ -61,13 +61,15 @@ class HlsQualitySelectorPlugin {
 
     this._qualityButton = new ConcreteButton(player);
 
-    const parentNode = this._options.parent
+    const parentNode = this._options.parent;
     const placementIndex = parentNode.children().length - this._options.positionIndex;
 
-    const concreteButtonInstance = parentNode.addChild(this._qualityButton, {componentClass: 'qualitySelector'}, placementIndex);
+    const concreteButtonInstance = parentNode.addChild(this._qualityButton,
+        {componentClass: 'qualitySelector'}, placementIndex);
 
     concreteButtonInstance.addClass('vjs-quality-selector');
-    concreteButtonInstance.menuButton_.$('.vjs-icon-placeholder').className += ' vjs-icon-hd';
+    concreteButtonInstance.
+         menuButton_.$('.vjs-icon-placeholder').className += ' vjs-icon-hd';
     concreteButtonInstance.removeClass('vjs-hidden');
 
   }
