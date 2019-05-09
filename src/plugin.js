@@ -24,6 +24,8 @@ class HlsQualitySelectorPlugin {
   constructor(player, options) {
     this.player = player;
     this._options = options
+    this._options.parent = player.controlBar
+    this._options.positionIndex = -2
 
     // If there is quality levels plugin and the HLS tech exists
     // then continue.
@@ -59,17 +61,8 @@ class HlsQualitySelectorPlugin {
 
     this._qualityButton = new ConcreteButton(player);
 
-    if (this._options.parent) {
-        const parentNode = this._options.parent
-    } else {
-        const parentNode = player.controlBar
-    }
-
-    if (this._options.positionIndex) {
-         const placementIndex = parentNode.children().length - this._options.positionIndex;
-    } else {
-        const placementIndex = parentNode.children().length - 2;
-    }
+    const parentNode = this._options.parent
+    const placementIndex = parentNode.children().length - this._options.positionIndex;
 
     const concreteButtonInstance = parentNode.addChild(this._qualityButton, {componentClass: 'qualitySelector'}, placementIndex);
 
