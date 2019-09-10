@@ -64,7 +64,7 @@ class HlsQualitySelectorPlugin {
     this._qualityButton = new ConcreteButton(player);
 
     const parentNode = this._options.parent;
-    const placementIndex = parentNode.children().length - this._options.positionIndex;
+    const placementIndex = parentNode.children().length + this._options.positionIndex;
 
     const concreteButtonInstance = parentNode.addChild(this._qualityButton,
         {componentClass: 'qualitySelector'}, placementIndex);
