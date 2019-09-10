@@ -117,6 +117,8 @@ class HlsQualitySelectorPlugin {
         return value;
       }
     }
+
+    return value;
   }
 
   /**
