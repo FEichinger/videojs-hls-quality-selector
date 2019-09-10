@@ -4,7 +4,10 @@ import ConcreteButton from './ConcreteButton';
 import ConcreteMenuItem from './ConcreteMenuItem';
 
 // Default options for the plugin.
-const defaults = {};
+const defaults = {
+  positionIndex: -2,
+  identifyBy: 'height'
+};
 
 // Cross-compatibility for Video.js 5 and 6.
 const registerPlugin = videojs.registerPlugin || videojs.plugin;
@@ -23,9 +26,8 @@ class HlsQualitySelectorPlugin {
    */
   constructor(player, options) {
     this.player = player;
-    this._options = options;
+    this._options = Object.assign(defaults, options);
     this._options.parent = player.controlBar;
-    this._options.positionIndex = -2;
 
     // If there is quality levels plugin and the HLS tech exists
     // then continue.
@@ -87,6 +89,37 @@ class HlsQualitySelectorPlugin {
   }
 
   /**
+   * Get identifier from QualityLevels Representation
+   *
+   * @param {Object} level - Individual quality level
+   * @param {bool} format - Format based on type
+   * @return {string|int} - Identifier, possibly formatted
+   */
+  getIdentifierFromLevel(level, format) {
+    let value = level[this._options.identifyBy] || level.height;
+
+    if (format) {
+      switch (this._options.identifyBy) {
+      case 'bitrate':
+        const mags = ['', 'k', 'M', 'G', 'T'];
+        let mag = 0;
+
+        while (Math.floor(value) > 1e3 && mag < mags.length) {
+          value = value / 1e3;
+          mag++;
+        }
+        return Math.floor(value) + mags[mag] + 'bps';
+
+      case 'height':
+        return value + 'p';
+
+      default:
+        return value;
+      }
+    }
+  }
+
+  /**
    * Executed when a quality level is added from HLS playlist.
    */
   onAddQualityLevel() {
@@ -98,11 +131,11 @@ class HlsQualitySelectorPlugin {
 
     for (let i = 0; i < levels.length; ++i) {
       if (!levelItems.filter(_existingItem => {
-        return _existingItem.item && _existingItem.item.value === levels[i].height;
+        return _existingItem.item && _existingItem.item.value === this.getIdentifierFromLevel(levels[i]);
       }).length) {
         const levelItem = this.getQualityMenuItem.call(this, {
-          label: levels[i].height + 'p',
-          value: levels[i].height
+          label: this.getIdentifierFromLevel(levels[i], true),
+          value: this.getIdentifierFromLevel(levels[i])
         });
 
         levelItems.push(levelItem);
@@ -138,17 +171,17 @@ class HlsQualitySelectorPlugin {
   }
 
   /**
-   * Sets quality (based on media height)
+   * Sets quality (based on media identifier)
    *
-   * @param {number} height - A number representing HLS playlist.
+   * @param {number} identifier - A number representing HLS playlist.
    */
-  setQuality(height) {
+  setQuality(identifier) {
     const qualityList = this.player.qualityLevels();
 
     for (let i = 0; i < qualityList.length; ++i) {
       const quality = qualityList[i];
 
-      quality.enabled = (quality.height === height || height === 'auto');
+      quality.enabled = (this.getIdentifierFromLevel(quality) === identifier || identifier === 'auto');
     }
     this._qualityButton.unpressButton();
   }
